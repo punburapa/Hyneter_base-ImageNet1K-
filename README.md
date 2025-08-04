@@ -9,7 +9,7 @@ python -m venv [Enviroment name]
 ```
 ## Install Pytorch
 ```
-pip3 install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu118
+pip3 install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu121
 ```
 
 ## Install Other Library
@@ -21,6 +21,16 @@ pip install -r requirement.txt
 SignUp or Login at
 
 [ImageNet1K](https://www.image-net.org)
+
+[Devkit]([https](https://www.image-net.org/data/ILSVRC/2012/ILSVRC2012_devkit_t12.tar.gz)://www.image-net.org)
+ 
+[Train]([[https](https://www.image-net.org/data/ILSVRC/2012/ILSVRC2012_devkit_t12.tar.gz)://www.image-net.org](https://www.image-net.org/data/ILSVRC/2012/ILSVRC2012_img_train.tar))
+
+[Val]([[https](https://www.image-net.org/data/ILSVRC/2012/ILSVRC2012_devkit_t12.tar.gz)://www.image-net.org](https://www.image-net.org/data/ILSVRC/2012/ILSVRC2012_img_val.tar)) 
+
+[Val]([[[https](https://www.image-net.org/data/ILSVRC/2012/ILSVRC2012_devkit_t12.tar.gz)://www.image-net.org](https://www.image-net.org/data/ILSVRC/2012/ILSVRC2012_img_val.tar)](https://www.image-net.org/data/ILSVRC/2012/ILSVRC2012_img_test_v10102019.tar)) 
+
+
 
 Then Download DevToolkit and Image from ImageNet 2012 Dataset
 
