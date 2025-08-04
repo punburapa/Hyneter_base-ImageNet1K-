@@ -464,7 +464,7 @@ from torchvision.transforms import functional as F
 from collections import OrderedDict
 
 
-class HyneterForFPN(nn.Module):
+class Hyneter(nn.Module):
     def __init__(self, *, hidden_dim, Conv_layers, TB_layers, heads, channels=3, num_classes=1000, head_dim=32, window_size=7,
                  downscaling_factors=(4, 2, 2, 2), relative_pos_embedding=True):
         super().__init__()
@@ -492,37 +492,25 @@ class HyneterForFPN(nn.Module):
 
 
     def forward(self, img):
- 
-        out = OrderedDict()
-        print("HyneterForFPN forward pass")
-        print(f"#Input image shape: {img.shape}")
-        c2 = self.stage1(img)
-        out['0'] = c2
-        print(f"#Output of stage1 (c2) shape: {c2.shape}")
-        c3 = self.stage2(c2)
-        out['1'] = c3
-        print(f"#Output of stage2 (c3) shape: {c3.shape}")
-        c4 = self.stage3(c3)
-        out['2'] = c4
-        print(f"#Output of stage3 (c4) shape: {c4.shape}")
-        c5 = self.stage4(c4)
-        out['3'] = c5
-        print(f"#Output of stage4 (c5) shape: {c5.shape}")
-        # Return the feature maps for FPN
-        return out
+        x = self.stage1(img)
+        x = self.stage2(x)
+        x = self.stage3(x)
+        x = self.stage4(x)
+        x = x.mean(dim=[2, 3])
+        return self.mlp_head(x)
         
 
 
 def hyneter_base_fpn(hidden_dim=96, Conv_layers=(2, 2, 2, 2), TB_layers=(2, 2, 2, 2), heads=(3, 6, 12, 24), **kwargs):
-    return HyneterForFPN(hidden_dim=hidden_dim, Conv_layers=Conv_layers, TB_layers=TB_layers, heads=heads, **kwargs)
+    return Hyneter(hidden_dim=hidden_dim, Conv_layers=Conv_layers, TB_layers=TB_layers, heads=heads, **kwargs)
 
 
 def hyneter_plus_fpn(hidden_dim=96, Conv_layers=(2, 2, 3, 2), TB_layers=(2, 2, 6, 2), heads=(3, 6, 12, 24), **kwargs):
-    return HyneterForFPN(hidden_dim=hidden_dim, Conv_layers=Conv_layers, TB_layers=TB_layers, heads=heads, **kwargs)
+    return Hyneter(hidden_dim=hidden_dim, Conv_layers=Conv_layers, TB_layers=TB_layers, heads=heads, **kwargs)
 
 
 def hyneter_max_fpn(hidden_dim=128, Conv_layers=(2, 2, 6, 2), TB_layers=(2, 2, 18, 2), heads=(4, 8, 16, 32), **kwargs):
-    return HyneterForFPN(hidden_dim=hidden_dim, Conv_layers=Conv_layers, TB_layers=TB_layers, heads=heads, **kwargs)
+    return Hyneter(hidden_dim=hidden_dim, Conv_layers=Conv_layers, TB_layers=TB_layers, heads=heads, **kwargs)
 
 
 
@@ -562,7 +550,7 @@ MIXUP_ALPHA = 0.8
 CUTMIX_ALPHA = 1.0
 RANDOM_ERASING_PROB = 0.25
 
-model = HyneterForFPN(hidden_dim=96, Conv_layers=(2, 2, 2, 2), TB_layers=(2, 2, 2, 2), heads=(3, 6, 12, 24), num_classes=NUM_CLASSES)
+model = Hyneter(hidden_dim=96, Conv_layers=(2, 2, 2, 2), TB_layers=(2, 2, 2, 2), heads=(3, 6, 12, 24), num_classes=NUM_CLASSES)
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 model.to(device)
