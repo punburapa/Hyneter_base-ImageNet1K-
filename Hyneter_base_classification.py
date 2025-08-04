@@ -628,7 +628,7 @@ best_accuracy = 0.0
 
 print("Starting training...")
 
-import time
+
 for epoch in range(NUM_EPOCHS):
     epoch_start_time = time.time()
     print(f"\nEpoch {epoch+1}/{NUM_EPOCHS} started at: {time.ctime(epoch_start_time)}")
