@@ -541,7 +541,8 @@ import time
 import os
 
 
-NUM_EPOCHS = 300
+# NUM_EPOCHS = 300
+NUM_EPOCHS = input("Enter Epoch: ")
 IMAGE_SIZE = 224
 BATCH_SIZE = 1024
 LEARNING_RATE = 0.001
