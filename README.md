@@ -22,13 +22,13 @@ SignUp or Login at
 
 [ImageNet1K](https://www.image-net.org)
 
-[Devkit]([https](https://www.image-net.org/data/ILSVRC/2012/ILSVRC2012_devkit_t12.tar.gz)://www.image-net.org)
+[Devkit](https://www.image-net.org/data/ILSVRC/2012/ILSVRC2012_devkit_t12.tar.gz)
  
-[Train]([[https](https://www.image-net.org/data/ILSVRC/2012/ILSVRC2012_devkit_t12.tar.gz)://www.image-net.org](https://www.image-net.org/data/ILSVRC/2012/ILSVRC2012_img_train.tar))
+[Train](https://www.image-net.org/data/ILSVRC/2012/ILSVRC2012_img_train.tar)
 
-[Val]([[https](https://www.image-net.org/data/ILSVRC/2012/ILSVRC2012_devkit_t12.tar.gz)://www.image-net.org](https://www.image-net.org/data/ILSVRC/2012/ILSVRC2012_img_val.tar)) 
+[Val](https://www.image-net.org/data/ILSVRC/2012/ILSVRC2012_img_val.tar) 
 
-[Val]([[[https](https://www.image-net.org/data/ILSVRC/2012/ILSVRC2012_devkit_t12.tar.gz)://www.image-net.org](https://www.image-net.org/data/ILSVRC/2012/ILSVRC2012_img_val.tar)](https://www.image-net.org/data/ILSVRC/2012/ILSVRC2012_img_test_v10102019.tar)) 
+[Test](https://www.image-net.org/data/ILSVRC/2012/ILSVRC2012_img_test_v10102019.tar) 
 
 
 
