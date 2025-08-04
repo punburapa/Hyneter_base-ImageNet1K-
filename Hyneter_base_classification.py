@@ -542,6 +542,10 @@ DATA_DIR = 'imagenet'  # Update with your ImageNet dataset path
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 print(f"Using device: {device}")
 
+print(f"Training for {NUM_EPOCHS} epochs with batch size {BATCH_SIZE} and learning rate {LEARNING_RATE}"
+      f"\nImage size: {IMAGE_SIZE}, Weight decay: {WEIGHT_DECAY}, Warmup epochs: {WARMUP_EPOCHS}, "
+      f"Number of workers: {NUM_WORKERS}, Number of classes: {NUM_CLASSES}")
+
 
 # --- Augmentation-specific hyperparameters ---
 RAND_AUGMENT_NUM_OPS = 2
@@ -551,14 +555,21 @@ CUTMIX_ALPHA = 1.0
 RANDOM_ERASING_PROB = 0.25
 
 model = Hyneter(hidden_dim=96, Conv_layers=(2, 2, 2, 2), TB_layers=(2, 2, 2, 2), heads=(3, 6, 12, 24), num_classes=NUM_CLASSES)
+print("---------Hyneter Basee model initialized----------")
+print("Model size:", sum(p.numel() for p in model.parameters() if p.requires_grad))
+
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 model.to(device)
 print(f"Using device: {device}")
+print(f"Model is on device: {next(model.parameters()).device}")
+
 
 criterion  = nn.CrossEntropyLoss()
 optimizer = optim.Adam(model.parameters(), lr=LEARNING_RATE, weight_decay=WEIGHT_DECAY)
 scheduler = optim.lr_scheduler.CosineAnnealingLR(optimizer, T_max=WARMUP_EPOCHS)
+print("Optimizer and scheduler initialized with learning rate:", LEARNING_RATE, "and weight decay:", WEIGHT_DECAY)
+
 
 
 # --- Data Transformations with timm's built-in options ---
@@ -582,12 +593,17 @@ val_transform = transforms.Compose([
     transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
 ])
 
-
+print("--- Data transformations initialized ---")
+print("--- Loade Dataset ---")
 train_dataset = ImageNet(root=DATA_DIR, split='train', transform=train_transform)
 val_dataset = ImageNet(root=DATA_DIR, split='val', transform=val_transform)
+print(f"Train dataset size: {len(train_dataset)}, Validation dataset size: {len(val_dataset)}")
+
 
 train_loader = DataLoader(train_dataset, batch_size=BATCH_SIZE, shuffle=True, num_workers=NUM_WORKERS, pin_memory=True)
 val_loader = DataLoader(val_dataset, batch_size=BATCH_SIZE, shuffle=False, num_workers=NUM_WORKERS, pin_memory=True)
+print(f"Train DataLoader created with batch size {BATCH_SIZE} and {NUM_WORKERS} workers")
+
 
 from timm.data import Mixup
 
@@ -610,6 +626,9 @@ os.makedirs(CHECKPOINT_DIR, exist_ok=True) # Create the directory if it doesn't 
 
 best_accuracy = 0.0
 
+print("Starting training...")
+
+import time
 for epoch in range(NUM_EPOCHS):
     epoch_start_time = time.time()
     print(f"\nEpoch {epoch+1}/{NUM_EPOCHS} started at: {time.ctime(epoch_start_time)}")
