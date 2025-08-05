@@ -530,9 +530,10 @@ import os
 
 
 # NUM_EPOCHS = 300
-NUM_EPOCHS = input("Enter Epoch: ")
+NUM_EPOCHS = input("Enter Epoch (Default: 300) : ")
 IMAGE_SIZE = 224
-BATCH_SIZE = 1024
+# BATCH_SIZE = 1024
+BATCH_SIZE = input("Enter Batch Size (Default: 1024) : ")
 LEARNING_RATE = 0.001
 WEIGHT_DECAY = 0.05
 WARMUP_EPOCHS = 20
