@@ -556,7 +556,7 @@ CUTMIX_ALPHA = 1.0
 RANDOM_ERASING_PROB = 0.25
 
 model = Hyneter(hidden_dim=96, Conv_layers=(2, 2, 2, 2), TB_layers=(2, 2, 2, 2), heads=(3, 6, 12, 24), num_classes=NUM_CLASSES)
-print("---------Hyneter Basee model initialized----------")
+print("---------Hyneter Base model initialized----------")
 print("Model size:", sum(p.numel() for p in model.parameters() if p.requires_grad))
 
 
