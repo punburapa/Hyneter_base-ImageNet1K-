@@ -349,7 +349,7 @@ class HyneterModule(nn.Module):
         x = self.mg(x)
         print(f"Input shape after Multigranularity CNN: {x.shape}") # Batch size, Channels, Height, Width
 
-        x_conv_path = x
+        x_conv_path = x.clone()
         x_tb_path = x
 
         x_tb_path = x_tb_path.permute(0, 2, 3, 1) # Change to (batch_size, Height, Width, Channels)
@@ -417,7 +417,7 @@ class HyneterModule_DualSwitch(nn.Module):
         x = self.mg(x)
         print(f"Input shape after Multigranularity CNN: {x.shape}") # Batch size, Channels, Height, Width
 
-        x_conv_path = x
+        x_conv_path = x.clone()
         x_tb_path = x
 
 
@@ -569,6 +569,7 @@ print(f"Model is on device: {next(model.parameters()).device}")
 criterion  = nn.CrossEntropyLoss()
 optimizer = optim.Adam(model.parameters(), lr=LEARNING_RATE, weight_decay=WEIGHT_DECAY)
 scheduler = optim.lr_scheduler.CosineAnnealingLR(optimizer, T_max=WARMUP_EPOCHS)
+scaler = torch.amp.GradScaler()
 print("Optimizer and scheduler initialized with learning rate:", LEARNING_RATE, "and weight decay:", WEIGHT_DECAY)
 
 
@@ -645,10 +646,17 @@ for epoch in range(NUM_EPOCHS):
             inputs, labels = mixup_fn(inputs, labels)
 
         optimizer.zero_grad()
-        outputs = model(inputs)
-        loss = criterion(outputs, labels)
-        loss.backward()
-        optimizer.step()
+
+        with autocast(device_type='cuda', dtype=torch.float16):
+            outputs = model(inputs)
+            loss = criterion(outputs, labels)
+        
+        # loss.backward()
+        # optimizer.step()
+        scaler.scale(loss).backward()
+        scaler.step(optimizer)
+
+        scaler.update()
 
         running_loss += loss.item() * inputs.size(0)
 
