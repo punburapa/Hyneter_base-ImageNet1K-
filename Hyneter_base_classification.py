@@ -501,15 +501,15 @@ class Hyneter(nn.Module):
         
 
 
-def hyneter_base_fpn(hidden_dim=96, Conv_layers=(2, 2, 2, 2), TB_layers=(2, 2, 2, 2), heads=(3, 6, 12, 24), **kwargs):
+def hyneter_base(hidden_dim=96, Conv_layers=(2, 2, 2, 2), TB_layers=(2, 2, 2, 2), heads=(3, 6, 12, 24), **kwargs):
     return Hyneter(hidden_dim=hidden_dim, Conv_layers=Conv_layers, TB_layers=TB_layers, heads=heads, **kwargs)
 
 
-def hyneter_plus_fpn(hidden_dim=96, Conv_layers=(2, 2, 3, 2), TB_layers=(2, 2, 6, 2), heads=(3, 6, 12, 24), **kwargs):
+def hyneter_plus(hidden_dim=96, Conv_layers=(2, 2, 3, 2), TB_layers=(2, 2, 6, 2), heads=(3, 6, 12, 24), **kwargs):
     return Hyneter(hidden_dim=hidden_dim, Conv_layers=Conv_layers, TB_layers=TB_layers, heads=heads, **kwargs)
 
 
-def hyneter_max_fpn(hidden_dim=128, Conv_layers=(2, 2, 6, 2), TB_layers=(2, 2, 18, 2), heads=(4, 8, 16, 32), **kwargs):
+def hyneter_max(hidden_dim=128, Conv_layers=(2, 2, 6, 2), TB_layers=(2, 2, 18, 2), heads=(4, 8, 16, 32), **kwargs):
     return Hyneter(hidden_dim=hidden_dim, Conv_layers=Conv_layers, TB_layers=TB_layers, heads=heads, **kwargs)
 
 
@@ -588,7 +588,7 @@ train_transform = timm.data.create_transform(
 )
 
 val_transform = transforms.Compose([
-    transforms.Resize(256),
+    transforms.Resize(224),
     transforms.CenterCrop(IMAGE_SIZE),
     transforms.ToTensor(),
     transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
