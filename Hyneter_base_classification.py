@@ -371,15 +371,8 @@ class HyneterModule(nn.Module):
         print("X(CNN) shape:", x_conv_path.shape) # B, C, H, W
         print("X(TB) shape:", x_tb_path.shape) # B, C, H, W
 
-
-        Z = x_conv_path * x_tb_path
-        print(f"Z shape", Z.shape) # B, C, H, W
-        print("Z before tanh:", Z)
-        Z = torch.tanh(Z)
-        print("Z after tanh:", Z)
-        print("Z is tanh(Dot product between x and S):", Z.shape) # B, C, H, W
-
-        output = x_tb_path+Z
+        
+        output = x_tb_path + torch.tanh(x_conv_path * x_tb_path)
         print("output shape after adding Z:", x.shape) # B, C, H, W
         print("output value:", output)
         return output
@@ -440,17 +433,8 @@ class HyneterModule_DualSwitch(nn.Module):
         print("X(CNN) shape:", x_conv_path.shape) # B, C, H, W
         print("X(TB) shape:", x_tb_path.shape) # B, C, H, W
 
+        output = x_tb_path+torch.tanh(x_conv_path * x_tb_path)
 
-        Z = x_conv_path * x_tb_path
-        print(f"Z shape", Z.shape) # B, C, H, W
-        print("Z before tanh:", Z)
-        Z = torch.tanh(Z)
-        print("Z after tanh:", Z)
-        print("Z is tanh(Dot product between x and S):", Z.shape) # B, C, H, W
-
-        output = x_tb_path+Z
-        print("output shape after adding Z:", x.shape) # B, C, H, W
-        print("output value:", output)
         return output
     
 

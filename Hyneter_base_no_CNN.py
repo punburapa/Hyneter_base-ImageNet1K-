@@ -344,20 +344,12 @@ class HyneterModule(nn.Module):
 
         x_tb_path = x_tb_path.permute(0, 2, 3, 1) # Change to (batch_size, Height, Width, Channels)
 
-        print("X(CNN) shape before Conv layers:", x_conv_path.shape) # Batch size, Channels, Height, Width
-        for block in self.Conv_layers:
-            x_conv_path = block(x_conv_path)
-        print(f"X(CNN) shape after Conv layers: {x_conv_path.shape}") # Batch size, Channels, Height, Width
-
-
         print("X(TB) shape before Transformer Blocks:", x_tb_path.shape) # Batch size, Height, Width, Channels
         for block in self.TB_layers:
             x_tb_path = block(x_tb_path)
         print(f"Input shape after Transformer Blocks: {x_tb_path.shape}") # Batch size, Height, Width, Channels
         x_tb_path = x_tb_path.permute(0, 3, 1, 2) # Change to (batch_size, channels, height, width)
         print("X(TB) shape:", x_tb_path.shape) # B, C, H, W
-
-
 
         return x_tb_path
     
@@ -366,14 +358,7 @@ class HyneterModule_DualSwitch(nn.Module):
     def __init__(self, in_channels, hidden_dimension, Conv_layers,TB_layers, downscaling_factor, num_heads, head_dim, window_size,
                  relative_pos_embedding):
         super().__init__()
-        self.mg = MultiGranularitySummingBlock(in_channels=in_channels, embed_dim=hidden_dimension, stride1=1)
-
-        self.Conv_layers = nn.ModuleList([])
-        for _ in range(Conv_layers):
-            self.Conv_layers.append(
-                CNN(in_channels=hidden_dimension,embed_dim=hidden_dimension)
-            )
-
+        self.mg = MultiGranularitySummingBlock(in_channels=in_channels, embed_dim=hidden_dimension, stride1=1)   
 
         self.DualSwitching = DualSwitch_SwapOnly()
 
@@ -382,54 +367,30 @@ class HyneterModule_DualSwitch(nn.Module):
             self.TB_layers.append(
                 TransformerBlock(dim=hidden_dimension, heads=num_heads, head_dim=head_dim, mlp_dim=hidden_dimension * 4,
                           shifted=False, window_size=window_size, relative_pos_embedding=relative_pos_embedding),
-               )
-            
+               )          
 
     def forward(self, x):
-        print("\nHyneterModule: HNB: Patch -> Conv -> TB")
-        print("HyneterModule forward pass")
-        
+        print("\nHyneterModule: HNB: Patch -> TB")
+        print("HyneterModule no CNN forward pass")
         
         print(f"\nInput shape before Multigranularity CNN: {x.shape}") # Batch size, Channels, Height, Width
         x = self.mg(x)
         print(f"Input shape after Multigranularity CNN: {x.shape}") # Batch size, Channels, Height, Width
 
-        x_conv_path = x.clone()
+        x = self.DualSwitching(x)
+
         x_tb_path = x
 
-
-        print("X(CNN) shape before Conv layers:", x_conv_path.shape) # Batch size, Channels, Height, Width
-        for block in self.Conv_layers:
-            x_conv_path = block(x_conv_path)
-        print(f"X(CNN) shape after Conv layers: {x_conv_path.shape}") # Batch size, Channels, Height, Width
-    
-        x_tb_path = self.DualSwitching(x_tb_path)
-
         x_tb_path = x_tb_path.permute(0, 2, 3, 1) # Change to (batch_size, Height, Width, Channels)
+
         print("X(TB) shape before Transformer Blocks:", x_tb_path.shape) # Batch size, Height, Width, Channels
         for block in self.TB_layers:
             x_tb_path = block(x_tb_path)
         print(f"Input shape after Transformer Blocks: {x_tb_path.shape}") # Batch size, Height, Width, Channels
         x_tb_path = x_tb_path.permute(0, 3, 1, 2) # Change to (batch_size, channels, height, width)
-
-
-        print("########### going to calculate Z ###########")
-        print("X(CNN) shape:", x_conv_path.shape) # B, C, H, W
         print("X(TB) shape:", x_tb_path.shape) # B, C, H, W
 
-
-        Z = x_conv_path * x_tb_path
-        print(f"Z shape", Z.shape) # B, C, H, W
-        print("Z before tanh:", Z)
-        Z = torch.tanh(Z)
-        print("Z after tanh:", Z)
-        print("Z is tanh(Dot product between x and S):", Z.shape) # B, C, H, W
-
-        output = x_tb_path+Z
-        print("output shape after adding Z:", x.shape) # B, C, H, W
-        print("output value:", output)
-        return output
-    
+        return x_tb_path    
 
 import torch
 import torch.nn as nn
