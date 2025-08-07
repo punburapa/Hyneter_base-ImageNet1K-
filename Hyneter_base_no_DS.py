@@ -349,7 +349,7 @@ class HyneterModule(nn.Module):
         x = self.mg(x)
         print(f"Input shape after Multigranularity CNN: {x.shape}") # Batch size, Channels, Height, Width
 
-        x_conv_path = x.clone()
+        x_conv_path = x
         x_tb_path = x
 
         x_tb_path = x_tb_path.permute(0, 2, 3, 1) # Change to (batch_size, Height, Width, Channels)
@@ -417,7 +417,7 @@ class HyneterModule_DualSwitch(nn.Module):
         x = self.mg(x)
         print(f"Input shape after Multigranularity CNN: {x.shape}") # Batch size, Channels, Height, Width
 
-        x_conv_path = x.clone()
+        x_conv_path = x
         x_tb_path = x
 
 
