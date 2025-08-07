@@ -323,15 +323,7 @@ class HyneterModule(nn.Module):
     def __init__(self, in_channels, hidden_dimension, Conv_layers,TB_layers, downscaling_factor, num_heads, head_dim, window_size,
                  relative_pos_embedding):
         super().__init__()
-        self.mg = MultiGranularitySummingBlock(in_channels=in_channels, embed_dim=hidden_dimension, stride1=1)
-
-        self.Conv_layers = nn.ModuleList([])
-        for _ in range(Conv_layers):
-            self.Conv_layers.append(
-                CNN(in_channels=hidden_dimension,embed_dim=hidden_dimension)
-            )
-
-        
+        self.mg = MultiGranularitySummingBlock(in_channels=in_channels, embed_dim=hidden_dimension, stride1=1)   
 
         self.TB_layers = nn.ModuleList([])
         for _ in range(TB_layers):
@@ -341,15 +333,13 @@ class HyneterModule(nn.Module):
                )          
 
     def forward(self, x):
-        print("\nHyneterModule: HNB: Patch -> Conv -> TB")
-        print("HyneterModule forward pass")
-        
+        print("\nHyneterModule: HNB: Patch -> TB")
+        print("HyneterModule no CNN forward pass")
         
         print(f"\nInput shape before Multigranularity CNN: {x.shape}") # Batch size, Channels, Height, Width
         x = self.mg(x)
         print(f"Input shape after Multigranularity CNN: {x.shape}") # Batch size, Channels, Height, Width
 
-        x_conv_path = x
         x_tb_path = x
 
         x_tb_path = x_tb_path.permute(0, 2, 3, 1) # Change to (batch_size, Height, Width, Channels)
@@ -365,24 +355,11 @@ class HyneterModule(nn.Module):
             x_tb_path = block(x_tb_path)
         print(f"Input shape after Transformer Blocks: {x_tb_path.shape}") # Batch size, Height, Width, Channels
         x_tb_path = x_tb_path.permute(0, 3, 1, 2) # Change to (batch_size, channels, height, width)
-
-
-        print("########### going to calculate Z ###########")
-        print("X(CNN) shape:", x_conv_path.shape) # B, C, H, W
         print("X(TB) shape:", x_tb_path.shape) # B, C, H, W
 
 
-        Z = x_conv_path * x_tb_path
-        print(f"Z shape", Z.shape) # B, C, H, W
-        print("Z before tanh:", Z)
-        Z = torch.tanh(Z)
-        print("Z after tanh:", Z)
-        print("Z is tanh(Dot product between x and S):", Z.shape) # B, C, H, W
 
-        output = x_tb_path+Z
-        print("output shape after adding Z:", x.shape) # B, C, H, W
-        print("output value:", output)
-        return output
+        return x_tb_path
     
 
 class HyneterModule_DualSwitch(nn.Module):
@@ -417,7 +394,7 @@ class HyneterModule_DualSwitch(nn.Module):
         x = self.mg(x)
         print(f"Input shape after Multigranularity CNN: {x.shape}") # Batch size, Channels, Height, Width
 
-        x_conv_path = x
+        x_conv_path = x.clone()
         x_tb_path = x
 
 
@@ -478,10 +455,10 @@ class Hyneter(nn.Module):
         self.stage2 = HyneterModule(in_channels=hidden_dim, hidden_dimension=hidden_dim * 2, Conv_layers=Conv_layers[1], TB_layers=TB_layers[1],
                                   downscaling_factor=downscaling_factors[1], num_heads=heads[1], head_dim=head_dim,
                                   window_size=window_size, relative_pos_embedding=relative_pos_embedding)
-        self.stage3 = HyneterModule_DualSwitch(in_channels=hidden_dim * 2, hidden_dimension=hidden_dim * 4, Conv_layers=Conv_layers[2], TB_layers=TB_layers[2],
+        self.stage3 = HyneterModule(in_channels=hidden_dim * 2, hidden_dimension=hidden_dim * 4, Conv_layers=Conv_layers[2], TB_layers=TB_layers[2],
                                   downscaling_factor=downscaling_factors[2], num_heads=heads[2], head_dim=head_dim,
                                   window_size=window_size, relative_pos_embedding=relative_pos_embedding)
-        self.stage4 = HyneterModule_DualSwitch(in_channels=hidden_dim * 4, hidden_dimension=hidden_dim * 8, Conv_layers=Conv_layers[3], TB_layers=TB_layers[3],
+        self.stage4 = HyneterModule(in_channels=hidden_dim * 4, hidden_dimension=hidden_dim * 8, Conv_layers=Conv_layers[3], TB_layers=TB_layers[3],
                                   downscaling_factor=downscaling_factors[3], num_heads=heads[3], head_dim=head_dim,
                                   window_size=window_size, relative_pos_embedding=relative_pos_embedding)
         
@@ -642,8 +619,8 @@ for epoch in range(NUM_EPOCHS):
     for batch_idx, (inputs, labels) in enumerate(train_loader):
         inputs, labels = inputs.to(device), labels.to(device)
 
-        if mixup_fn is not None:
-            inputs, labels = mixup_fn(inputs, labels)
+        # if mixup_fn is not None:
+        #     inputs, labels = mixup_fn(inputs, labels)
 
         optimizer.zero_grad()
 

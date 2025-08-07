@@ -190,37 +190,18 @@ class CNN(nn.Module):
 
 
 class MultiGranularitySummingBlock(nn.Module):
-    def __init__(self, in_channels: int, embed_dim: int, stride1: int = 1):
+    def __init__(self, in_channels, out_channels, downscaling_factor):
         super().__init__()
-        padding_3x3 = 1
-        padding_5x5 = 2
-
-        self.out_channels = embed_dim//3
-
-        self.branch1x1 = nn.Sequential(
-            nn.Conv2d(in_channels, self.out_channels, kernel_size=1, stride=stride1, bias=False),
-            nn.BatchNorm2d(self.out_channels),
-            nn.GELU()
-        )
-
-        self.branch3x3 = nn.Sequential(
-            nn.Conv2d(in_channels, self.out_channels, kernel_size=3, stride=stride1, padding=padding_3x3, bias=False),
-            nn.BatchNorm2d(self.out_channels),
-            nn.GELU()
-        )
-
-        self.branch5x5 = nn.Sequential(
-            nn.Conv2d(in_channels, self.out_channels, kernel_size=5, stride=stride1, padding=padding_5x5, bias=False),
-            nn.BatchNorm2d(self.out_channels),
-            nn.GELU()
-        )
+        self.downscaling_factor = in_channels // out_channels
+        self.patch_merge = nn.Unfold(kernel_size=downscaling_factor, stride=downscaling_factor, padding=0)
+        self.linear = nn.Linear(in_channels * downscaling_factor ** 2, out_channels)
 
     def forward(self, x):
-        branch1x1 = self.branch1x1(x)
-        branch3x3 = self.branch3x3(x)
-        branch5x5 = self.branch5x5(x)
-        x = torch.cat((branch1x1, branch3x3, branch5x5), dim=1)
-
+        b, c, h, w = x.shape
+        print(b,c,h,w)
+        new_h, new_w = h // self.downscaling_factor, w // self.downscaling_factor
+        x = self.patch_merge(x).view(b, -1, new_h, new_w).permute(0, 2, 3, 1)
+        x = self.linear(x)
         return x
     
 
@@ -349,7 +330,7 @@ class HyneterModule(nn.Module):
         x = self.mg(x)
         print(f"Input shape after Multigranularity CNN: {x.shape}") # Batch size, Channels, Height, Width
 
-        x_conv_path = x
+        x_conv_path = x.clone()
         x_tb_path = x
 
         x_tb_path = x_tb_path.permute(0, 2, 3, 1) # Change to (batch_size, Height, Width, Channels)
@@ -417,7 +398,7 @@ class HyneterModule_DualSwitch(nn.Module):
         x = self.mg(x)
         print(f"Input shape after Multigranularity CNN: {x.shape}") # Batch size, Channels, Height, Width
 
-        x_conv_path = x
+        x_conv_path = x.clone()
         x_tb_path = x
 
 
