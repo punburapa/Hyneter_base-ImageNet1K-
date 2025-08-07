@@ -626,8 +626,8 @@ for epoch in range(NUM_EPOCHS):
     for batch_idx, (inputs, labels) in enumerate(train_loader):
         inputs, labels = inputs.to(device), labels.to(device)
 
-        if mixup_fn is not None:
-            inputs, labels = mixup_fn(inputs, labels)
+        # if mixup_fn is not None:
+        #     inputs, labels = mixup_fn(inputs, labels)
 
         optimizer.zero_grad()
 
