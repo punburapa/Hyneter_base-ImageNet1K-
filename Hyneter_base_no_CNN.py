@@ -505,7 +505,7 @@ print(f"Model is on device: {next(model.parameters()).device}")
 
 
 criterion  = nn.CrossEntropyLoss()
-optimizer = optim.Adam(model.parameters(), lr=LEARNING_RATE, weight_decay=WEIGHT_DECAY)
+optimizer = optim.AdamW(model.parameters(), lr=LEARNING_RATE, weight_decay=WEIGHT_DECAY)
 scheduler = optim.lr_scheduler.CosineAnnealingLR(optimizer, T_max=WARMUP_EPOCHS)
 scaler = torch.GradScaler()
 print("Optimizer and scheduler initialized with learning rate:", LEARNING_RATE, "and weight decay:", WEIGHT_DECAY)
