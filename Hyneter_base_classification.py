@@ -498,9 +498,6 @@ def hyneter_max(hidden_dim=128, Conv_layers=(2, 2, 6, 2), TB_layers=(2, 2, 18, 2
 
 
 
-
-
-
 from torchvision.datasets import ImageNet
 from torchvision.datasets.folder import default_loader
 from torchvision import transforms
