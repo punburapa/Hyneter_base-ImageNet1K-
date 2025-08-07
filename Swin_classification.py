@@ -261,7 +261,7 @@ WEIGHT_DECAY = 0.05
 WARMUP_EPOCHS = 20
 NUM_WORKERS = 8  # Number of workers for DataLoader
 NUM_CLASSES = 1000  # Number of classes in ImageNet1K
-DATA_DIR = '/imagenet'  # Update with your ImageNet dataset path
+DATA_DIR = 'imagenet'  # Update with your ImageNet dataset path
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 print(f"Using device: {device}")
 
